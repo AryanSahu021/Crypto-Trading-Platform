@@ -23,6 +23,8 @@ public:
 	std::string getNextTime(const std::string& timestamp);
 	/**Returns the average price in that timeframe */
 	static double getAveragePrice(std::vector<OrderBookEntry>& orders);
+	void insertOrder(OrderBookEntry& order);
+	std::vector<OrderBookEntry> matchAsksToBids(std::string product, std::string timestamp);
 private:
 	std::vector<OrderBookEntry> orders;
 };

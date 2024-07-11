@@ -22,7 +22,7 @@ void MerkelMain::printMenu()
     std::cout << "3- Place an ask" << std::endl;
     std::cout << "4- Place a bid" << std::endl;
     std::cout << "5- Print Wallet" << std::endl;
-    std::cout << "6- Continue" << std::endl;
+    std::cout << "6- Go to next timeframe" << std::endl;
     std::cout << "============================" << std::endl;
 }
 
@@ -43,14 +43,59 @@ void MerkelMain::printMarketStats()
     }
 }
 
-void MerkelMain::enterOffer()
-{
-    std::cout << "Placing an ask on..." << std::endl;
+void MerkelMain::enterAsk()
+{   
+    std::string input;
+    std::cout << "Enter Ask: (Product,Price,Amount e.g ETH/BTC,200,0.5): " << std::endl;
+    std::getline(std::cin, input);
+
+    std::vector<std::string> tokens = CSVReader::tokenise(input, ',');
+    if (tokens.size() != 3) {
+        std::cout << "Bad input! " << input << std::endl;
+    }
+    else {
+        try {
+            OrderBookEntry obe = CSVReader::stringsToOBE(
+                tokens[1],
+                tokens[2],
+                curTime,
+                tokens[0],
+                OrderBookType::ask
+            );
+            orderBook.insertOrder(obe);
+        }
+        catch (const std::exception& e) {
+            std::cout << "MerkelMain::enterAsk : Bad Input! " << std::endl;
+            }
+    }
+
 }
 
 void MerkelMain::enterBid()
 {
-    std::cout << "Placing a bid on..." << std::endl;
+    std::string input;
+    std::cout << "Enter Bid: (Product,Price,Amount e.g ETH/BTC,200,0.5): " << std::endl;
+    std::getline(std::cin, input);
+
+    std::vector<std::string> tokens = CSVReader::tokenise(input, ',');
+    if (tokens.size() != 3) {
+        std::cout << "Bad input! " << input << std::endl;
+    }
+    else {
+        try {
+            OrderBookEntry obe = CSVReader::stringsToOBE(
+                tokens[1],
+                tokens[2],
+                curTime,
+                tokens[0],
+                OrderBookType::bid
+            );
+            orderBook.insertOrder(obe);
+        }
+        catch (const std::exception& e) {
+            std::cout << "MerkelMain::enterBid : Bad Input! " << std::endl;
+        }
+    }
 }
 
 void MerkelMain::printWallet()
@@ -61,15 +106,27 @@ void MerkelMain::printWallet()
 void MerkelMain::gotoNextTimeframe()
 {
     std::cout << "Going to next time frame..." << std::endl;
+    std::vector<OrderBookEntry> sales = orderBook.matchAsksToBids("ETH/BTC", curTime);
+    std::cout << "Sales: " << sales.size() << std::endl;
+    for (OrderBookEntry& sale : sales) {
+        std::cout << "Sale Price: " << sale.price << " Amount: " << sale.amount << std::endl;
+    }
     curTime = orderBook.getNextTime(curTime);
 }
 
 int MerkelMain::getUserOption()
-{
+{   
+    int userOption = 0;
     std::cout << "Type in 1-6" << std::endl;
-    int choice;
-    std::cin >> choice;
-    return choice;
+    std::string line;
+    std::getline(std::cin, line);
+    try {
+        userOption = std::stoi(line);
+    }
+    catch (const std::exception& e) {
+        //
+    }
+    return userOption;
 }
 
 void MerkelMain::processUserOption(int choice)
@@ -83,7 +140,7 @@ void MerkelMain::processUserOption(int choice)
         printMarketStats();
         break;
     case 3:
-        enterOffer();
+        enterAsk();
         break;
     case 4:
         enterBid();

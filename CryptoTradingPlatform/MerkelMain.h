@@ -13,12 +13,12 @@ private:
     void printMenu();
     void printHelp();
     void printMarketStats();
-    void enterOffer();
+    void enterAsk();
     void enterBid();
     void printWallet();
     void gotoNextTimeframe();
     int getUserOption();
     void processUserOption(int userOption);
-    OrderBook orderBook{"C:\\Users\\aryan\\Downloads\\20200317.csv"};
+    OrderBook orderBook{"test.csv"};
     std::string curTime;
 };
