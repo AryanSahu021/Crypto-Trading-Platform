@@ -5,7 +5,8 @@ enum class OrderBookType
     bid,
     ask,
     unknown,
-    sale
+    bidsale,
+    asksale
 };
 
 class OrderBookEntry
@@ -19,7 +20,8 @@ public:
     std::string timestamp;
     std::string product;
     OrderBookType type;
-    OrderBookEntry(double _price, double _amount, std::string _timestamp, std::string _product, OrderBookType _type);
+    std::string username;
+    OrderBookEntry(double _price, double _amount, std::string _timestamp, std::string _product, OrderBookType _type, std::string username = "dataset");
     static OrderBookType stringToOrderBookType(const std::string& s);
     static bool compareByTimestmp(OrderBookEntry& e1, OrderBookEntry& e2);
     static bool compareByPriceAsc(OrderBookEntry& e1, OrderBookEntry& e2);

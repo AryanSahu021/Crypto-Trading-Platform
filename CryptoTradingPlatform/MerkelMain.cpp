@@ -6,6 +6,7 @@
 void MerkelMain::init() {
     int input;
     curTime = orderBook.getEarliestTime();
+    wallet.insertCurrency("BTC", 10);
     while (true) {
         printMenu();
         input = getUserOption();
@@ -62,7 +63,14 @@ void MerkelMain::enterAsk()
                 tokens[0],
                 OrderBookType::ask
             );
-            orderBook.insertOrder(obe);
+            obe.username = "simuser";
+            if (wallet.canFulfillOrder(obe)) {
+                std::cout << "Wallet looks good. " << std::endl;
+                orderBook.insertOrder(obe);
+            }
+            else {
+                std::cout << "Wallet has insufficient funds. " << std::endl;
+            }
         }
         catch (const std::exception& e) {
             std::cout << "MerkelMain::enterAsk : Bad Input! " << std::endl;
@@ -79,7 +87,7 @@ void MerkelMain::enterBid()
 
     std::vector<std::string> tokens = CSVReader::tokenise(input, ',');
     if (tokens.size() != 3) {
-        std::cout << "Bad input! " << input << std::endl;
+        std::cout << "MerkelMain::enterBid Bad input! " << input << std::endl;
     }
     else {
         try {
@@ -90,7 +98,14 @@ void MerkelMain::enterBid()
                 tokens[0],
                 OrderBookType::bid
             );
-            orderBook.insertOrder(obe);
+            obe.username = "simuser";
+            if (wallet.canFulfillOrder(obe)) {
+                std::cout << "Wallet looks good. " << std::endl;
+                orderBook.insertOrder(obe);
+            }
+            else {
+                std::cout << "Wallet has insufficient funds. " << std::endl;
+            }
         }
         catch (const std::exception& e) {
             std::cout << "MerkelMain::enterBid : Bad Input! " << std::endl;
@@ -100,7 +115,7 @@ void MerkelMain::enterBid()
 
 void MerkelMain::printWallet()
 {
-    std::cout << " Sorry you are broke. Your wallet is empty." << std::endl;
+    std::cout << wallet.toString() << std::endl;
 }
 
 void MerkelMain::gotoNextTimeframe()
@@ -110,6 +125,10 @@ void MerkelMain::gotoNextTimeframe()
     std::cout << "Sales: " << sales.size() << std::endl;
     for (OrderBookEntry& sale : sales) {
         std::cout << "Sale Price: " << sale.price << " Amount: " << sale.amount << std::endl;
+        if (sale.username == "simuser") {
+            // Update the wallet.
+            wallet.processSale(sale);
+        }
     }
     curTime = orderBook.getNextTime(curTime);
 }
